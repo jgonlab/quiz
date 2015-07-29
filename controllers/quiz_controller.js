@@ -82,4 +82,31 @@ exports.create = function(req, res) {
         .save({fields: ["pregunta", "respuesta"]})
         .then( function(){ res.redirect('/quizes')}) ;
     }
-};*/ 
+};*/
+
+// GET /quizes/:id/edit
+exports.edit = function(req,res){
+    var quiz = req.quiz;    //Autoload de instancia de quiz
+    res.render('quizes/edit', {quiz: quiz, errors: []});
+};
+
+// PUT /quizes/:id
+exports.update = function(req,res){
+    req.quiz.pregunta = req.body.quiz.pregunta;
+    req.quiz.respuesta = req.body.quiz.respuesta;
+    
+    req.quiz.validate().then(
+        function(err){
+            if (err){
+                res.render('quizes/edit', {quiz: req.quiz, errors: err.errors});
+            } else {
+                req.quiz
+                .save({fields: ["pregunta","respuesta"]})
+                .then( function(){res.redirect('/quizes');});
+            }
+        }
+    );
+};
+
+
+
