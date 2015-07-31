@@ -17,9 +17,22 @@ exports.load = function(req, res, next, quizId){
 
 // GET /quizes
 exports.index = function(req,res){
-    models.Quiz.findAll().then(function(quizes){
-        res.render('quizes/index', { quizes: quizes, errors: [] });
-    }).catch(function(error) {next(error);})
+    var buscar = req.query.search;
+    if (buscar != null && buscar != undefined)
+        buscar = buscar.trim();
+    
+    if (buscar===null || buscar===undefined || buscar===""){
+        models.Quiz.findAll().then(function(quizes){    
+            res.render('quizes/index', { quizes: quizes, errors: [] });
+        }).catch(function(error) {next(error);})
+    }
+    else{
+        buscar = "%" + buscar + "%";
+        buscar.replace(" ","%");
+        models.Quiz.findAll({where:["pregunta like ?", buscar]}).then(function(quizes){    
+            res.render('quizes/index', { quizes: quizes, errors: [] });
+        }).catch(function(error) {next(error);})
+    }
 };
 
 //GET /quizes/:id
