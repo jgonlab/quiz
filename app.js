@@ -23,9 +23,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser('Quiz 2015'));
-//app.use(cookieParser());
 app.use(session());
-//app.use(session({ secret: 'keyboard cat', key: 'sid', cookie: { secure: true }}));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -40,6 +38,25 @@ app.use(function(req,res,next){
     
     //Hacer visible req.session en las vistas
     res.locals.session = req.session;
+    next();
+});
+
+app.use(function(req,res,next){
+    if (req.session.user && !req.session.miHora){
+        req.session.miHora = new Date().getTime();
+    }
+    else{
+        if (req.session.user && req.session.miHora){
+            var nuevaHora = new Date();
+            msAhora = nuevaHora.getTime();
+            msAntes = req.session.miHora;
+            var minutos = ( msAhora - msAntes) / (1000*60);
+            if (minutos > 2){
+                delete req.session.user;
+                res.redirect('/login'); //redirect a login
+            }
+        }
+    }
     next();
 });
 
